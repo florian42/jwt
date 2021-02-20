@@ -3,6 +3,7 @@
     "displayName": "jwt",
     "description": "Decode JWT",
     "version": "0.0.1",
+    "publisher": "florian",
     "engines": {
         "vscode": "^1.53.0"
     },
