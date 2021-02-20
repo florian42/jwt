@@ -14,7 +14,13 @@ export function activate(context: vscode.ExtensionContext) {
     try {
       const input = await vscode.window.showInputBox();
       const jwt = Jwt.getJwt(input);
-      vscode.window.showInformationMessage(`${JSON.stringify(jwt)}`);
+      const copyToClipboard = await vscode.window.showInformationMessage(
+        JSON.stringify(jwt),
+        "Copy To Clipboard"
+      );
+      if (copyToClipboard) {
+        vscode.env.clipboard.writeText(JSON.stringify(jwt));
+      }
     } catch (error) {
       vscode.window.showErrorMessage(error.message);
     }
