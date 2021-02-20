@@ -5,12 +5,17 @@ import * as assert from "assert";
 import * as vscode from "vscode";
 import * as sinon from "sinon";
 import Jwt from "../../jwt";
+import { afterEach } from "mocha";
 // import * as myExtension from '../../extension';
 
 suite("Extension Test Suite", () => {
   vscode.window.showInformationMessage("Start all tests.");
   const validJwt =
     "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c";
+
+  afterEach(function () {
+    sinon.restore();
+  });
 
   test("starts extension @integration", async () => {
     await vscode.commands.executeCommand("jwt.decode");
@@ -36,6 +41,38 @@ suite("Extension Test Suite", () => {
 
     assert(showInputBox.calledOnce);
     assert(showInformationMessage.calledOnce);
-    assert(showInformationMessage.withArgs(expectedMessage, sinon.match.any));
+    //@ts-ignore
+    sinon.assert.calledWith(showInformationMessage, expectedMessage);
+  });
+
+  test("shows error message when no input given", async () => {
+    const showInputBox = sinon.stub(vscode.window, "showInputBox");
+    const showErrorMessage = sinon.stub(vscode.window, "showErrorMessage");
+    showInputBox.resolves(undefined);
+
+    await vscode.commands.executeCommand("jwt.decode");
+
+    assert(showInputBox.calledOnce);
+    assert(showErrorMessage.calledOnce);
+    console.log(showErrorMessage.firstCall.lastArg);
+    //@ts-ignore
+    sinon.assert.calledWith(showErrorMessage, "Forgot to paste your JWT?");
+  });
+
+  test("shows error message when input is invalid", async () => {
+    const showInputBox = sinon.stub(vscode.window, "showInputBox");
+    const showErrorMessage = sinon.stub(vscode.window, "showErrorMessage");
+    showInputBox.resolves("123");
+
+    await vscode.commands.executeCommand("jwt.decode");
+
+    assert(showInputBox.calledOnce);
+    assert(showErrorMessage.calledOnce);
+    console.log(showErrorMessage.firstCall.lastArg);
+    //@ts-ignore
+    sinon.assert.calledWith(
+      showErrorMessage,
+      "Make sure your JWT has a valid format"
+    );
   });
 });
