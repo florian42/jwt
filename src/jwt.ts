@@ -1,6 +1,6 @@
-import { decode } from "jose/util/base64url";
+import { base64url } from "jose";
 import { TextDecoder } from "util";
-import { InputCannotBeEmptyError, InvalidInputError } from "./exceptions";
+import { InvalidInputError } from "./exceptions";
 
 class Jwt {
   header: string;
@@ -11,9 +11,9 @@ class Jwt {
     this.payload = JSON.parse(payload);
   }
 
-  public static getJwt(jwt: string | null | undefined): Jwt {
+  public static getJwt(jwt: string | null | undefined): Jwt | null {
     if (!jwt) {
-      throw new InputCannotBeEmptyError("Forgot to paste your JWT?");
+      return null;
     }
     const textDecoder = new TextDecoder();
     const parts = jwt.split(".");
@@ -21,7 +21,7 @@ class Jwt {
       throw new InvalidInputError("Make sure your JWT has a valid format");
     }
     const [header, payload] = parts.map((part) =>
-      textDecoder.decode(decode(part))
+      textDecoder.decode(base64url.decode(part))
     );
     return new Jwt(header, payload);
   }

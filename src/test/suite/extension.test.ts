@@ -17,12 +17,6 @@ suite("Extension Test Suite", () => {
     sinon.restore();
   });
 
-  test("starts extension @integration", async () => {
-    await vscode.commands.executeCommand("jwt.decode");
-    const started = vscode.extensions.getExtension("florian.jwt")?.isActive;
-    assert.strictEqual(started, true);
-  });
-
   test("decodes valid jwt input", async () => {
     const showInputBox = sinon.stub(vscode.window, "showInputBox");
     const showInformationMessage = sinon.stub(
@@ -45,7 +39,7 @@ suite("Extension Test Suite", () => {
     sinon.assert.calledWith(showInformationMessage, expectedMessage);
   });
 
-  test("shows error message when no input given", async () => {
+  test("does not show message when no input given", async () => {
     const showInputBox = sinon.stub(vscode.window, "showInputBox");
     const showErrorMessage = sinon.stub(vscode.window, "showErrorMessage");
     showInputBox.resolves(undefined);
@@ -53,10 +47,7 @@ suite("Extension Test Suite", () => {
     await vscode.commands.executeCommand("jwt.decode");
 
     assert(showInputBox.calledOnce);
-    assert(showErrorMessage.calledOnce);
-    console.log(showErrorMessage.firstCall.lastArg);
-    //@ts-ignore
-    sinon.assert.calledWith(showErrorMessage, "Forgot to paste your JWT?");
+    assert(showErrorMessage.notCalled);
   });
 
   test("shows error message when input is invalid", async () => {
